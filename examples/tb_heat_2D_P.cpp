@@ -34,7 +34,7 @@
 #include <pochoir.hpp>
 
 using namespace std;
-#define TIMES 1
+#define TIMES 20
 #define N_RANK 2
 #define TOLERANCE (1e-6)
 
@@ -84,12 +84,10 @@ int main(int argc, char * argv[])
     printf("N_SIZE = %d, T_SIZE = %d\n", N_SIZE, T_SIZE);
     Pochoir_Shape_2D heat_shape_2D[] = {{0, 0, 0}, {-1, 1, 0}, {-1, 0, 0}, {-1, -1, 0}, {-1, 0, -1}, {-1, 0, 1}};
     Pochoir<N_RANK> heat_2D(heat_shape_2D);
-	Pochoir_Array<double, N_RANK> a(N_SIZE, N_SIZE), b(N_SIZE, N_SIZE);
+	Pochoir_Array<double, N_RANK> a(N_SIZE, N_SIZE);
     a.Register_Boundary(periodic_2D);
     heat_2D.Register_Array(a);
 
-    b.Register_Shape(heat_shape_2D);
-    b.Register_Boundary(periodic_2D);
 
     /* Now we can only access the Pochoir_Array after Register_Array,
      * or Register_Shape with the array, because we rely on the shape
@@ -99,22 +97,21 @@ int main(int argc, char * argv[])
 	for (int j = 0; j < N_SIZE; ++j) {
         a(0, i, j) = 1.0 * (rand() % BASE); 
         a(1, i, j) = 0; 
-        b(0, i, j) = a(0, i, j);
-        b(1, i, j) = 0;
 	} }
 
-	cout << "a(T+1, J, I) = 0.125 * (a(T, J+1, I) - 2.0 * a(T, J, I) + a(T, J-1, I)) + 0.125 * (a(T, J, I+1) - 2.0 * a(T, J, I) + a(T, J, I-1)) + a(T, J, I)" << endl;
     Pochoir_Kernel_2D(heat_2D_fn, t, i, j)
 	    a(t, i, j) = 0.125 * (a(t-1, i+1, j) - 2.0 * a(t-1, i, j) + a(t-1, i-1, j)) + 0.125 * (a(t-1, i, j+1) - 2.0 * a(t-1, i, j) + a(t-1, i, j-1)) + a(t-1, i, j);
     Pochoir_Kernel_End
 
 	gettimeofday(&start, 0);
-    for (int times = 0; times < TIMES; ++times) {
-        heat_2D.Run(T_SIZE, heat_2D_fn);
-    }
+	for (int times = 0; times < TIMES; ++times) {
+		heat_2D.Run(T_SIZE, heat_2D_fn);
+	}
 	gettimeofday(&end, 0);
-	std::cout << "Pochoir ET: consumed time :" << 1.0e3 * tdiff(&end, &start)/TIMES << "ms" << std::endl;
+	std::cout << "Pochoir ET: consumed time : "
+			<< 1.0e3 * tdiff(&end, &start) / TIMES << " ms" << std::endl;
 
+#if 0
 	gettimeofday(&start, 0);
     for (int times = 0; times < TIMES; ++times) {
 	for (int t = 0; t < T_SIZE; ++t) {
@@ -130,6 +127,6 @@ int main(int argc, char * argv[])
 	for (int j = 0; j < N_SIZE; ++j) {
 		check_result(t, i, j, a.interior(t, i, j), b.interior(t, i, j));
 	} } 
-
+#endif
 	return 0;
 }

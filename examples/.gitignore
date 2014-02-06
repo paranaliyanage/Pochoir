@@ -4,3 +4,12 @@ tb_heat_1D_NP.i
 heat_2D_NP_zero
 tb_heat_2D_NP_zero_pochoir.cpp
 tb_heat_2D_NP_zero.i
+tb_heat_2D_NP_pochoir.cpp
+heat_2D_NP
+tb_heat_2D_NP.i
+heat_2D_P
+tb_heat_2D_P_pochoir.cpp
+tb_heat_2D_P.i
+heat_3D_NP
+tb_heat_3D_NP_pochoir.cpp
+tb_heat_3D_NP.i

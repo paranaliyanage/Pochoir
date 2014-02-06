@@ -34,7 +34,7 @@
 #include <pochoir.hpp>
 
 using namespace std;
-#define TIMES 1
+#define TIMES 20
 #define N_RANK 3
 #define TOLERANCE (1e-6)
 
@@ -57,7 +57,6 @@ int main(int argc, char * argv[])
 	const int BASE = 1024;
 	int t;
 	struct timeval start, end;
-    double min_tdiff = INF;
     int N_SIZE = 0, T_SIZE = 0;
 
     if (argc < 3) {
@@ -69,10 +68,9 @@ int main(int argc, char * argv[])
     printf("N_SIZE = %d, T_SIZE = %d\n", N_SIZE, T_SIZE);
     Pochoir_Shape_3D heat_shape_3D[] = {{0, 0, 0, 0}, {-1, 1, 0, 0}, {-1, -1, 0, 0}, {-1, 0, 0, 0}, {-1, 0, 0, -1}, {-1, 0, 0, 1}, {-1, 0, 1, 0}, {-1, 0, -1, 0}};
     Pochoir_3D heat_3D(heat_shape_3D);
-	Pochoir_Array_3D(double) a(N_SIZE, N_SIZE, N_SIZE), b(N_SIZE, N_SIZE, N_SIZE);
+	Pochoir_Array_3D(double) a(N_SIZE, N_SIZE, N_SIZE);
     Pochoir_Domain I(1, N_SIZE-1), J(1, N_SIZE-1), K(1, N_SIZE-1);
     heat_3D.Register_Array(a);
-    b.Register_Shape(heat_shape_3D);
 
 	for (int i = 0; i < N_SIZE; ++i) {
 	for (int j = 0; j < N_SIZE; ++j) {
@@ -85,8 +83,6 @@ int main(int argc, char * argv[])
             a(0, i, j, k) = 1.0 * (rand() % BASE); 
             a(1, i, j, k) = 0; 
         }
-        b(0, i, j, k) = a(0, i, j, k);
-        b(1, i, j, k) = 0;
 	} } }
 
     Pochoir_Kernel_3D(heat_3D_fn, t, i, j, k)
@@ -107,16 +103,15 @@ int main(int argc, char * argv[])
     heat_3D.Register_Domain(I, J, K);
 
 #if 1
-    for (int times = 0; times < TIMES; ++times) {
-	    gettimeofday(&start, 0);
-        heat_3D.Run(T_SIZE, heat_3D_fn);
-	    gettimeofday(&end, 0);
-        min_tdiff = min(min_tdiff, (1.0e3 * tdiff(&end, &start)));
-    }
-	std::cout << "Pochoir ET: consumed time :" << min_tdiff << "ms" << std::endl;
-
+	gettimeofday(&start, 0);
+	for (int times = 0; times < TIMES; ++times) {
+		heat_3D.Run(T_SIZE, heat_3D_fn);
+	}
+	gettimeofday(&end, 0);
+	std::cout << "Pochoir ET: consumed time : "
+			<< 1.0e3 * tdiff(&end, &start) / TIMES << " ms" << std::endl;
 #endif
-#if 1
+#if 0
     min_tdiff = INF;
     /* cilk_for + zero-padding */
     for (int times = 0; times < TIMES; ++times) {

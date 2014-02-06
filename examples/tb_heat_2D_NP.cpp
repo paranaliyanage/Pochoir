@@ -34,7 +34,7 @@
 #include <pochoir.hpp>
 
 using namespace std;
-#define TIMES 1
+#define TIMES 20
 #define N_RANK 2
 #define TOLERANCE (1e-6)
 
@@ -57,7 +57,6 @@ int main(int argc, char * argv[])
 	const int BASE = 1024;
 	int t;
 	struct timeval start, end;
-    double min_tdiff = INF;
     int N_SIZE = 0, T_SIZE = 0;
 
     if (argc < 3) {
@@ -68,35 +67,31 @@ int main(int argc, char * argv[])
     T_SIZE = StrToInt(argv[2]);
     printf("N_SIZE = %d, T_SIZE = %d\n", N_SIZE, T_SIZE);
     Pochoir_Shape_2D heat_shape_2D[] = {{1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, -1, -1}, {0, 0, -1}, {0, 0, 1}, {0, 0, 0}};
-	Pochoir_Array_2D(double) a(N_SIZE, N_SIZE), b(N_SIZE+2, N_SIZE+2);
+	Pochoir_Array_2D(double) a(N_SIZE, N_SIZE);
     Pochoir_2D heat_2D(heat_shape_2D);
 
-	cout << "a(T+1, J, I) = 0.125 * (a(T, J+1, I) - 2.0 * a(T, J, I) + a(T, J-1, I)) + 0.125 * (a(T, J, I+1) - 2.0 * a(T, J, I) + a(T, J, I-1)) + a(T, J, I)" << endl;
     Pochoir_Kernel_2D(heat_2D_fn, t, i, j)
 	   a(t+1, i, j) = 0.125 * (a(t, i+1, j) - 2.0 * a(t, i, j) + a(t, i-1, j)) + 0.125 * (a(t, i, j+1) - 2.0 * a(t, i, j) + a(t, i, j-1)) + a(t, i, j);
     Pochoir_Kernel_End
 
     a.Register_Boundary(heat_bv_2D);
     heat_2D.Register_Array(a);
-    b.Register_Shape(heat_shape_2D);
 
 	for (int i = 0; i < N_SIZE; ++i) {
 	for (int j = 0; j < N_SIZE; ++j) {
         a(0, i, j) = 1.0 * (rand() % BASE); 
-        a(1, i, j) = 0; 
-        b(0, i+1, j+1) = a(0, i, j);
-        b(1, i+1, j+1) = 0;
+        a(1, i, j) = 0;
 	} }
 
+	gettimeofday(&start, 0);
+	for (int times = 0; times < TIMES; ++times) {
+		heat_2D.Run(T_SIZE, heat_2D_fn);
+	}
+	gettimeofday(&end, 0);
+	std::cout << "Pochoir ET: consumed time : "
+			<< 1.0e3 * tdiff(&end, &start) / TIMES << " ms" << std::endl;
 
-    for (int times = 0; times < TIMES; ++times) {
-	    gettimeofday(&start, 0);
-        heat_2D.Run(T_SIZE, heat_2D_fn);
-	    gettimeofday(&end, 0);
-        min_tdiff = min(min_tdiff, (1.0e3 * tdiff(&end, &start)));
-    }
-	std::cout << "Pochoir ET: consumed time :" << min_tdiff << "ms" << std::endl;
-
+#if 0
     min_tdiff = INF;
     /* cilk_for + zero-padding */
     for (int times = 0; times < TIMES; ++times) {
@@ -116,6 +111,6 @@ int main(int argc, char * argv[])
 	for (int j = 0; j < N_SIZE; ++j) {
 		check_result(t, i, j, a.interior(t, i, j), b.interior(t, i+1, j+1));
 	} } 
-
+#endif
 	return 0;
 }
