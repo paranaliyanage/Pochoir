@@ -113,6 +113,5 @@ berkeley3d27pt : tb_3d27pt.cpp
 #	Phase-I compilation with debugging aid
 #	${CC} -o 3dfd_test ${POCHOIR_DEBUG_FLAGS} tb_3dfd_test.cpp
 
-
 clean: 
-	rm -f *.o *.i *_pochoir *_gdb *_pochoir.cpp *.out
+	rm -f *.o *.i *_pochoir *_gdb *_pochoir.cpp *.out heat_1D_NP heat_2D_NP heat_2D_NP_zero heat_2D_P heat_3D_NP
