@@ -34,7 +34,7 @@
 #include <pochoir.hpp>
 
 using namespace std;
-#define TIMES 1
+#define TIMES 20
 #define N_RANK 2
 #define TOLERANCE (1e-6)
 
@@ -58,7 +58,6 @@ int main(int argc, char * argv[])
 	const int BASE = 1024;
 	int t;
 	struct timeval start, end;
-    double min_tdiff = INF;
     int N_SIZE = 0, T_SIZE = 0;
 
     if (argc < 3) {
@@ -70,36 +69,31 @@ int main(int argc, char * argv[])
     printf("N_SIZE = %d, T_SIZE = %d\n", N_SIZE, T_SIZE);
 	/* data structure of Pochoir - row major */
     Pochoir_Shape_1D heat_shape_1D[] = {{1, 0}, {0, 1}, {0, -1}, {0, 0}};
-	Pochoir_Array_1D(double) a(N_SIZE), b(N_SIZE);
+	Pochoir_Array_1D(double) a(N_SIZE);
     Pochoir_1D heat_1D(heat_shape_1D);
 
-	cout << "a(T+1, J, I) = 0.125 * (a(T, J+1, I) - 2.0 * a(T, J, I) + a(T, J-1, I)) + 0.125 * (a(T, J, I+1) - 2.0 * a(T, J, I) + a(T, J, I-1)) + a(T, J, I)" << endl;
     Pochoir_Kernel_1D(heat_1D_fn, t, i)
 	   a(t+1, i) = 0.125 * (a(t, i+1) - 2.0 * a(t, i) + a(t, i-1));
     Pochoir_Kernel_End
 
     a.Register_Boundary(heat_bv_1D);
     heat_1D.Register_Array(a);
-    b.Register_Shape(heat_shape_1D);
 
 	for (int i = 0; i < N_SIZE; ++i) {
         a(0, i) = 1.0 * (rand() % BASE); 
-        a(1, i) = 0; 
-        b(0, i) = a(0, i);
-        b(1, i) = 0;
+        a(1, i) = 0;
 	} 
 
 #if 1
+	gettimeofday(&start, 0);
     for (int times = 0; times < TIMES; ++times) {
-	    gettimeofday(&start, 0);
-        heat_1D.Run(T_SIZE, heat_1D_fn);
-	    gettimeofday(&end, 0);
-        min_tdiff = min(min_tdiff, (1.0e3 * tdiff(&end, &start)));
+    	heat_1D.Run(T_SIZE, heat_1D_fn);
     }
-	std::cout << "Pochoir ET: consumed time :" << min_tdiff << "ms" << std::endl;
+	gettimeofday(&end, 0);
+	std::cout << "Pochoir ET: consumed time : " << 1.0e3 * tdiff(&end, &start)/TIMES << " ms" << std::endl;
 
 #endif
-#if 1
+#if 0
     b.Register_Boundary(heat_bv_1D);
     min_tdiff = INF;
     /* cilk_for + zero-padding */
