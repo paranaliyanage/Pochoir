@@ -45,7 +45,6 @@ void check_result(int t, int i, int j, int k, double a, double b)
 	} else {
 		printf("a(%d, %d, %d, %d) = %f, b(%d, %d, %d, %d) = %f : FAILED!\n", t, i, j, k, a, t, i, j, k, b);
 	}
-
 }
 
 Pochoir_Boundary_3D(heat_bv_3D, arr, t, i, j, k)
