@@ -58,6 +58,7 @@ int main(int argc, char * argv[])
 	const int BASE = 1024;
 	int t;
 	struct timeval start, end;
+    double min_tdiff = INF;
     int N_SIZE = 0, T_SIZE = 0;
 
     if (argc < 3) {
@@ -85,12 +86,13 @@ int main(int argc, char * argv[])
 	} 
 
 #if 1
-	gettimeofday(&start, 0);
     for (int times = 0; times < TIMES; ++times) {
-    	heat_1D.Run(T_SIZE, heat_1D_fn);
+	    gettimeofday(&start, 0);
+        heat_1D.Run(T_SIZE, heat_1D_fn);
+	    gettimeofday(&end, 0);
+        min_tdiff = min(min_tdiff, (1.0e3 * tdiff(&end, &start)));
     }
-	gettimeofday(&end, 0);
-	std::cout << "Pochoir ET: consumed time : " << 1.0e3 * tdiff(&end, &start)/TIMES << " ms" << std::endl;
+	std::cout << "Pochoir ET: consumed time : " << min_tdiff << " ms" << std::endl;
 
 #endif
 #if 0
