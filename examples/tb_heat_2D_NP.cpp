@@ -88,7 +88,8 @@ int main(int argc, char * argv[])
 	    gettimeofday(&start, 0);
         heat_2D.Run(T_SIZE, heat_2D_fn);
 	    gettimeofday(&end, 0);
-        min_tdiff = min(min_tdiff, (1.0e3 * tdiff(&end, &start)));
+        min_tdiff = min(min_tdiff, 1.0e3 *((end.tv_sec - start.tv_sec)
+						+ (end.tv_usec - start.tv_usec) / 1000000.0f));
     }
 	std::cout << "Pochoir ET: consumed time : " << min_tdiff << " ms" << std::endl;
 
