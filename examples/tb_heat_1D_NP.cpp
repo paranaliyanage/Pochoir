@@ -90,7 +90,7 @@ int main(int argc, char * argv[])
 	    gettimeofday(&start, 0);
         heat_1D.Run(T_SIZE, heat_1D_fn);
 	    gettimeofday(&end, 0);
-        min_tdiff = min(halide_time,
+        min_tdiff = min(min_tdiff,
 				((end.tv_sec - start.tv_sec)
 						+ (end.tv_usec - start.tv_usec) / 100000000.0f));
     }
